@@ -58,7 +58,60 @@ Dashboards & Insights
 
 ---
 
-## 🛠️ Tech Stack
+## � Dashboard Outputs
+
+The project includes two interactive Jupyter notebooks with matplotlib dashboards that visualize key business metrics in real-time.
+
+### Customer Performance Dashboard
+**File:** `notebooks/customer_mart_viz.ipynb`
+
+Displays four key customer analytics visualizations:
+1. **Lifetime Sales Distribution** (Histogram) — Shows customer value segmentation with bins
+2. **Orders vs. Revenue Correlation** (Scatter Plot) — Reveals relationship between purchase frequency and lifetime value
+3. **Top 10 Countries by Lifetime Sales** (Bar Chart) — Geographic revenue performance with labeled values
+4. **Revenue by Gender** (Bar Chart) — Gender-based customer segmentation
+5. **Top 10 Customers by Name** (Detail Chart) — Named customer showcase sorted by lifetime sales
+
+**Features:**
+- Dark theme styling for professional presentation
+- Automatic data cleaning (handles N/A values)
+- Customer names instead of IDs (First + Last name formatting)
+- Value labels on bar charts for easy reading
+- Responsive 2x2 grid layout
+
+### Product Performance Dashboard
+**File:** `notebooks/product_mart_viz.ipynb`
+
+Displays four key product analytics visualizations:
+1. **Revenue Distribution** (Histogram) — Product revenue spread across catalog
+2. **Units Sold vs Revenue Correlation** (Scatter Plot) — Volume-to-revenue relationship analysis
+3. **Top 10 Categories by Revenue** (Bar Chart) — Category performance ranking
+4. **Profit by Category** (Bar Chart) — Profitability analysis with margin insights
+5. **Top 10 Products by Revenue** (Detail Chart) — Individual product performance
+
+**Features:**
+- Dark theme styling consistent with customer dashboard
+- Automatic N/A category removal
+- Profit margin calculations
+- Value labels for quantitative insights
+- Professional matplotlib aesthetics
+
+### Running the Dashboards
+
+1. Open Jupyter notebooks in VS Code
+2. Execute cells sequentially (Shift+Enter)
+3. Dashboards render with live Snowflake data
+4. All charts update automatically when underlying data changes
+
+**Dashboard Styling:**
+- **Color Palette:** Dark theme (#111827 background) with distinct colors per metric
+- **Typography:** Sans-serif, optimized for readability
+- **Layout:** 2x2 compact grid + optional detail charts
+- **Labels:** Formatted with thousands separators (e.g., "1,250,000")
+
+---
+
+## �🛠️ Tech Stack
 
 | Component | Technology |
 |-----------|-----------|
