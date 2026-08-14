@@ -1,0 +1,170 @@
+version: 2
+
+sources:
+  - name: ecom_source
+    database: RAW_DB
+    schema: ECOM_SOURCE
+    tables:
+      - name: RAW_CUST_AZ12
+        description: "Raw CRM customer data (AZ12 extract) — customer key, birth date, gender."
+        columns:
+          - name: CID
+            description: "Customer key (natural key used to join with CUST_INFO and LOC_A101)."
+            tests:
+              - not_null
+              - unique
+              - no_unwanted_spaces
+          - name: BDATE
+            description: "Customer birth date."
+            tests:
+              - not_null
+              - date_in_future
+          - name: GEN
+            description: "Customer gender."
+            tests:
+              - no_unwanted_spaces
+
+      - name: RAW_CUST_INFO
+        description: "Raw CRM customer info — name, marital status, gender, account create date."
+        columns:
+          - name: CST_ID
+            description: "Surrogate customer ID."
+            tests:
+              - not_null
+              - unique
+          - name: CST_KEY
+            description: "Customer key (natural key used to join with CUST_AZ12 and LOC_A101)."
+            tests:
+              - not_null
+          - name: CST_FIRSTNAME
+            description: "Customer first name."
+            tests:
+              - no_unwanted_spaces
+          - name: CST_LASTNAME
+            description: "Customer last name."
+            tests:
+              - no_unwanted_spaces
+          - name: CST_MARITAL_STATUS
+            description: "Customer marital status (S/M)."
+          - name: CST_GNDR
+            description: "Customer gender."
+            tests:
+              - no_unwanted_spaces
+          - name: CST_CREATE_DATE
+            description: "Date the customer record was created."
+
+      - name: RAW_LOC_A101
+        description: "Raw CRM customer location data — one row per customer with country."
+        columns:
+          - name: CID
+            description: "Customer key (joins to CID in CUST_AZ12 and CST_KEY in CUST_INFO)."
+            tests:
+              - not_null
+              - no_unwanted_spaces
+          - name: CNTRY
+            description: "Country name."
+            tests:
+               - no_unwanted_spaces
+
+      - name: RAW_PRD_INFO
+        description: "Raw ERP product info — name, cost, product line, and validity dates."
+        columns:
+          - name: PRD_ID
+            description: "Surrogate product ID."
+            tests:
+              - not_null
+              - unique
+          - name: PRD_KEY
+            description: "Product key (natural key used to join with PX_CAT_G1V2)."
+            tests:
+              - not_null
+          - name: PRD_NM
+            description: "Product name."
+            tests:
+              - no_unwanted_spaces
+          - name: PRD_COST
+            description: "Product cost."
+            tests:
+              - non_negative
+              - not_null
+          - name: PRD_LINE
+            description: "Product line code."
+            tests:
+              - no_unwanted_spaces
+
+          - name: PRD_START_DT
+            description: "Date the product became available."
+            tests:
+              - not_null
+          - name: PRD_END_DT
+            description: "Date the product was discontinued."
+            tests:
+              - end_date_greater_than_start_date:
+                  arguments:
+                    column_name: PRD_START_DT
+                    date_column_name: PRD_END_DT
+
+      - name: RAW_PX_CAT_G1V2
+        description: "Raw ERP product category data — category, subcategory, and maintenance flag."
+        columns:
+          - name: ID
+            description: "Category ID (joins to PRD_KEY in PRD_INFO)."
+            tests:
+              - not_null
+              - unique
+          - name: CAT
+            description: "Product category."
+            tests:
+              - no_unwanted_spaces
+          - name: SUBCAT
+            description: "Product subcategory."
+            tests:
+              - no_unwanted_spaces
+          - name: MAINTENANCE
+            description: "Whether the product requires maintenance (true/false)."
+
+      - name: RAW_SALES_DETAILS
+        description: "Raw sales order line items — one row per product per order."
+        columns:
+          - name: SLS_ORD_NUM
+            description: "Sales order number."
+            tests:
+              - not_null
+              - no_unwanted_spaces
+          - name: SLS_PRD_KEY
+            description: "Product key (joins to PRD_KEY in PRD_INFO)."
+            tests:
+              - not_null
+              - no_unwanted_spaces
+          - name: SLS_CUST_ID
+            description: "Customer ID (joins to CST_ID in CUST_INFO)."
+            tests:
+              - not_null
+              - no_unwanted_spaces
+          - name: SLS_ORDER_DT
+            description: "Order date (YYYYMMDD)."
+            tests:
+              - valid_yyyymmdd_date
+          - name: SLS_SHIP_DT
+            description: "Ship date (YYYYMMDD)."
+            tests:
+              - valid_yyyymmdd_date
+          - name: SLS_DUE_DT
+            description: "Due date (YYYYMMDD)."
+            tests:
+              - valid_yyyymmdd_date
+          - name: SLS_SALES
+            description: "Total sales amount for the line."
+            tests:
+              - not_null
+              - non_negative
+          - name: SLS_QUANTITY
+            description: "Quantity sold on the line."
+            tests:
+              - not_null
+              - non_negative
+          - name: SLS_PRICE
+            description: "Unit price for the line."
+            tests:
+              - not_null
+              - non_negative

@@ -1,0 +1,37 @@
+==================== 2026-08-07T20:18:09.136909Z | 019fdde0-4061-7470-a823-dda0f062d5eb ====================
+20:18:09.140482 [info ]: Installing dbt project and profile setup
+20:18:09.149128 [info ]: Info Created .vscode/extensions.json with dbt extension recommendation
+20:18:09.150722 [info ]: Success Project created successfully!
+20:18:09.151112 [info ]: Info Project name: jaffle_shop
+20:18:09.151137 [info ]: Info Project directory: jaffle_shop
+20:18:09.151409 [info ]: Info Setting up your profile...
+20:18:09.152606 [info ]: Info Creating new profile...
+20:19:48.538867 [info ]: Success Profile written to /Users/roelsomido/.dbt/profiles.yml
+20:19:48.539564 [info ]: Validating profile inputs, adapters, and connection
+
+20:19:48.539905 [info ]: dbt-fusion 2.0.0-preview.205
+20:19:48.543247 [info ]: Started loading project
+20:19:48.566610 [info ]: Loading ~/.dbt/profiles.yml
+20:19:48.576182 [info ]: Finished loading project [  0.03s]
+20:19:48.579246 [info ]: Started debugging
+20:19:48.579503 [info ]: Debugging profile: dev
+20:19:48.579555 [info ]: Debugging dbt version: 2.0.0-preview.205
+20:19:48.579760 [info ]: Debugging platform: macos aarch64 (unix)
+20:19:48.579963 [info ]: Debugging adapter type: snowflake (remote)
+20:19:48.588924 [info ]: Debugging dependencies:
+  git: OK
+20:19:48.591484 [info ]: Debugging connection:
+  "account": "UWPLFAC-GA25583",
+  "user": "QUANTUMECHO",
+  "database": "RAW_DB",
+  "warehouse": "COMPUTE_WH",
+  "schema": "ECOM_SOURCE",
+  "role": "dbt_role"
+20:19:54.587753 [debug]: Query executed on node unknown:
+select 1 as id
+20:19:54.591121 [info ]: Debugging connection test: OK
+20:19:54.591567 [info ]: Debugged All checks passed!
+20:19:54.592322 [info ]: Finished debugging [  6.01s]
+20:19:55.937730 [info ]: 
+==================== Execution Summary =====================
+Finished 'init' successfully for target 'dev' [1m 47s]

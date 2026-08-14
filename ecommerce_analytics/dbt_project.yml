@@ -1,0 +1,25 @@
+name: ecommerce_analytics
+
+profile: ecommerce_analytics
+
+seed-paths: ["seeds"]
+model-paths: ["models"]
+macro-paths: ["macros"]
+analysis-paths: ["analyses"]
+test-paths: ["tests"]
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+seeds:
+  # Builds seeds into '<your_schema_name>_raw'
+  ecommerce_analytics:
+    +schema: raw
+
+models:
+  ecommerce_analytics:
+    +static_analysis: strict
+    staging:
+      +materialized: view
+    marts:
+      +materialized: table
