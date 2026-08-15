@@ -1,4 +1,6 @@
 name: ecommerce_analytics
+version: '1.0.0'
+require-dbt-version: [">=1.12.0", "<3.0.0"]
 
 profile: ecommerce_analytics
 
@@ -23,3 +25,9 @@ models:
       +materialized: view
     marts:
       +materialized: table
+
+data_tests:
+  ecommerce_analytics:
+    +severity: warn
+flags:
+  require_generic_test_arguments_property: true

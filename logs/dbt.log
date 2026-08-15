@@ -1,37 +1,16 @@
-==================== 2026-08-07T20:18:09.136909Z | 019fdde0-4061-7470-a823-dda0f062d5eb ====================
-20:18:09.140482 [info ]: Installing dbt project and profile setup
-20:18:09.149128 [info ]: Info Created .vscode/extensions.json with dbt extension recommendation
-20:18:09.150722 [info ]: Success Project created successfully!
-20:18:09.151112 [info ]: Info Project name: jaffle_shop
-20:18:09.151137 [info ]: Info Project directory: jaffle_shop
-20:18:09.151409 [info ]: Info Setting up your profile...
-20:18:09.152606 [info ]: Info Creating new profile...
-20:19:48.538867 [info ]: Success Profile written to /Users/roelsomido/.dbt/profiles.yml
-20:19:48.539564 [info ]: Validating profile inputs, adapters, and connection
+[0m16:48:07.807597 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'start', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10d110590>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10e822850>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10e822ad0>]}
 
-20:19:48.539905 [info ]: dbt-fusion 2.0.0-preview.205
-20:19:48.543247 [info ]: Started loading project
-20:19:48.566610 [info ]: Loading ~/.dbt/profiles.yml
-20:19:48.576182 [info ]: Finished loading project [  0.03s]
-20:19:48.579246 [info ]: Started debugging
-20:19:48.579503 [info ]: Debugging profile: dev
-20:19:48.579555 [info ]: Debugging dbt version: 2.0.0-preview.205
-20:19:48.579760 [info ]: Debugging platform: macos aarch64 (unix)
-20:19:48.579963 [info ]: Debugging adapter type: snowflake (remote)
-20:19:48.588924 [info ]: Debugging dependencies:
-  git: OK
-20:19:48.591484 [info ]: Debugging connection:
-  "account": "UWPLFAC-GA25583",
-  "user": "QUANTUMECHO",
-  "database": "RAW_DB",
-  "warehouse": "COMPUTE_WH",
-  "schema": "ECOM_SOURCE",
-  "role": "dbt_role"
-20:19:54.587753 [debug]: Query executed on node unknown:
-select 1 as id
-20:19:54.591121 [info ]: Debugging connection test: OK
-20:19:54.591567 [info ]: Debugged All checks passed!
-20:19:54.592322 [info ]: Finished debugging [  6.01s]
-20:19:55.937730 [info ]: 
-==================== Execution Summary =====================
-Finished 'init' successfully for target 'dev' [1m 47s]
+
+============================== 16:48:07.811073 | ac2e32d2-5dcd-48fc-b961-3242b856a864 ==============================
+[0m16:48:07.811073 [info ] [MainThread]: Running with dbt=1.12.2
+[0m16:48:07.811437 [debug] [MainThread]: running dbt with arguments {'partial_parse': 'True', 'use_experimental_parser': 'False', 'introspect': 'True', 'use_colors': 'True', 'static_parser': 'True', 'printer_width': '80', 'write_json': 'True', 'no_print': 'None', 'version_check': 'True', 'log_format': 'default', 'quiet': 'False', 'debug': 'False', 'warn_error_options': 'WarnErrorOptionsV2(error=[], warn=[], silence=[])', 'hints_enabled': 'True', 'cache_selected_only': 'False', 'warn_error': 'None', 'send_anonymous_usage_stats': 'True', 'target_path': 'None', 'empty': 'False', 'indirect_selection': 'eager', 'fail_fast': 'False', 'log_cache_events': 'False', 'profiles_dir': '/Users/roelsomido/.dbt', 'log_path': 'logs', 'maximum_seed_size_mib': '1', 'invocation_command': 'dbt build'}
+[0m16:48:07.811861 [error] [MainThread]: [[31mERROR[0m]: Encountered an error:
+Runtime Error
+  No dbt_project.yml found at expected path /Users/roelsomido/dbt_projects/dbt_project.yml
+  Verify that each entry within packages.yml (and their transitive dependencies) contains a file named dbt_project.yml
+  
+[0m16:48:07.813803 [debug] [MainThread]: Resource report: {"command_name": "build", "command_success": false, "command_wall_clock_time": 0.0621565, "process_in_blocks": "0", "process_kernel_time": 0.120741, "process_mem_max_rss": "130777088", "process_out_blocks": "0", "process_user_time": 0.78839}
+[0m16:48:07.814083 [debug] [MainThread]: Command `dbt build` failed at 16:48:07.814031 after 0.06 seconds
+[0m16:48:07.814267 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'end', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10e7d4d60>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10e7ab410>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10e82bf00>]}
+[0m16:48:07.814438 [debug] [MainThread]: Flushing usage events
+[0m16:48:09.100331 [debug] [MainThread]: An error was encountered while trying to flush usage events

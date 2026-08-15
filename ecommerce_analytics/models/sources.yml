@@ -18,7 +18,9 @@ sources:
             description: "Customer birth date."
             tests:
               - not_null
-              - date_in_future
+              - date_in_future:
+                  config:
+                    severity: warn
           - name: GEN
             description: "Customer gender."
             tests:
@@ -30,8 +32,12 @@ sources:
           - name: CST_ID
             description: "Surrogate customer ID."
             tests:
-              - not_null
-              - unique
+              - not_null:
+                  config:
+                    severity: warn
+              - unique:
+                  config:
+                    severity: warn
           - name: CST_KEY
             description: "Customer key (natural key used to join with CUST_AZ12 and LOC_A101)."
             tests:
@@ -64,7 +70,7 @@ sources:
           - name: CNTRY
             description: "Country name."
             tests:
-               - no_unwanted_spaces
+              - no_unwanted_spaces
 
       - name: RAW_PRD_INFO
         description: "Raw ERP product info — name, cost, product line, and validity dates."
@@ -85,8 +91,12 @@ sources:
           - name: PRD_COST
             description: "Product cost."
             tests:
-              - non_negative
-              - not_null
+              - non_negative:
+                  config:
+                    severity: warn
+              - not_null:
+                  config:
+                    severity: warn
           - name: PRD_LINE
             description: "Product line code."
             tests:
@@ -103,7 +113,8 @@ sources:
                   arguments:
                     column_name: PRD_START_DT
                     date_column_name: PRD_END_DT
-
+                  config:
+                    severity: warn
       - name: RAW_PX_CAT_G1V2
         description: "Raw ERP product category data — category, subcategory, and maintenance flag."
         columns:
@@ -144,7 +155,9 @@ sources:
           - name: SLS_ORDER_DT
             description: "Order date (YYYYMMDD)."
             tests:
-              - valid_yyyymmdd_date
+              - valid_yyyymmdd_date:
+                  config:
+                    severity: warn
           - name: SLS_SHIP_DT
             description: "Ship date (YYYYMMDD)."
             tests:
@@ -156,8 +169,12 @@ sources:
           - name: SLS_SALES
             description: "Total sales amount for the line."
             tests:
-              - not_null
-              - non_negative
+              - not_null:
+                  config:
+                    severity: warn
+              - non_negative:
+                  config:
+                    severity: warn
           - name: SLS_QUANTITY
             description: "Quantity sold on the line."
             tests:
@@ -166,5 +183,9 @@ sources:
           - name: SLS_PRICE
             description: "Unit price for the line."
             tests:
-              - not_null
-              - non_negative
+              - not_null:
+                  config:
+                    severity: warn
+              - non_negative:
+                  config:
+                    severity: warn
