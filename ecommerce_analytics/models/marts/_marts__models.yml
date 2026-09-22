@@ -1,0 +1,137 @@
+version: 2
+
+models:
+  - name: dim_customers
+    description: "Customer dimension table joining customer profile, birth date, and location."
+    columns:
+      - name: customer_key
+        description: "Surrogate primary key for the customer dimension, generated via dbt_utils.generate_surrogate_key."
+        tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: "Natural primary key for the customer."
+        tests:
+          - unique
+
+  - name: dim_products
+    description: "Product dimension table joining product info with category details."
+    columns:
+      - name: product_id
+        description: "Primary key. Natural product id from the source system."
+        tests:
+          - unique
+          - not_null
+      - name: product_key
+        description: "Natural business key derived from the source product key."
+        tests:
+          - not_null
+
+  - name: fact_sales
+    description: "Sales fact table. One row per sales order line, joined to customer and product dimensions."
+    columns:
+      - name: order_number
+        description: "Order number from the source system. Grain identifier for the fact."
+        tests:
+          - not_null
+      - name: customer_key
+        description: "Foreign key to dim_customers.customer_key. Should resolve for every row."
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_key
+      - name: product_id
+        description: "Foreign key to dim_products.product_id. Should resolve for every row."
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_products')
+                field: product_id
+      - name: sales_amount
+        description: "Total sales amount for the order line."
+        tests:
+          - not_null
+      - name: quantity
+        description: "Number of units sold on the order line."
+        tests:
+          - not_null
+
+  - name: mart_customer_sales
+    description: "Customer-level sales aggregates. One row per customer with lifetime KPIs (orders, units, revenue, recency)."
+    columns:
+      - name: customer_key
+        description: "Surrogate key from dim_customers. Primary key of this mart."
+        tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: "Natural customer id from the source system."
+        tests:
+          - not_null
+      - name: total_orders
+        description: "Distinct number of orders placed by the customer."
+        tests:
+          - not_null
+      - name: lifetime_sales
+        description: "Sum of sales_amount across all order lines for the customer."
+        tests:
+          - not_null
+      - name: days_since_last_order
+        description: "Days between the customer's most recent order and today. Null for customers with no orders."
+        tests:
+          - not_null
+
+  - name: dim_date
+    description: "Date dimension. One row per calendar day, with year/quarter/month/week/day breakdowns. Generated via dbt_utils.date_spine."
+    columns:
+      - name: date_day
+        description: "Calendar date. Primary key of this dim."
+        tests:
+          - unique
+          - not_null
+      - name: year_number
+        description: "Four-digit year."
+        tests:
+          - not_null
+      - name: month_number
+        description: "Month of year (1-12)."
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+      - name: day_of_week_number
+        description: "Day of week, 1-7 with 1=Monday (analyst-friendly convention; shifted from Snowflake's 0-6 dayofweek)."
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [1, 2, 3, 4, 5, 6, 7]
+
+  - name: mart_product_sales
+    description: "Product-level sales aggregates. One row per product with revenue, units, profit proxy, and category rollups."
+    columns:
+      - name: product_id
+        description: "Primary key from dim_products. Primary key of this mart."
+        tests:
+          - unique
+          - not_null
+      - name: product_key
+        description: "Natural business key from the source system."
+        tests:
+          - not_null
+      - name: category
+        description: "Product category (e.g., Bikes, Components)."
+      - name: subcategory
+        description: "Product subcategory within the category."
+      - name: total_units_sold
+        description: "Sum of quantity across all order lines for the product."
+        tests:
+          - not_null
+      - name: total_revenue
+        description: "Sum of sales_amount across all order lines for the product."
+        tests:
+          - not_null

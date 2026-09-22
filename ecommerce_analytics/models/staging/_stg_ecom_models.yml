@@ -1,0 +1,318 @@
+version: 2
+
+models:
+
+  # ─────────────────────────────────────────────────────────────
+  # stg_raw_cust_info
+  # Source: RAW_CUST_INFO
+  # Transformations:
+  #   - cst_id           -> customer_id
+  #   - cst_key          -> customer_key
+  #   - cst_firstname    -> first_name
+  #   - cst_lastname     -> last_name
+  #   - cst_marital_status -> marital_status
+  #   - cst_gndr         -> gender
+  #   - cst_create_date  -> create_date (cast to date)
+  #   - dedupe: keep latest cst_create_date per cst_key (flag = 1)
+  # ─────────────────────────────────────────────────────────────
+  - name: stg_raw_cust_info
+    description: >
+      Staging model for customer information. One row per customer
+      (deduplicated by keeping the most recent record per cst_key).
+    columns:
+      - name: customer_id
+        description: Surrogate numeric customer id from the source system.
+        tests:
+          - not_null
+          - unique
+
+      - name: customer_key
+        description: Natural business key for the customer (cst_key in source).
+        tests:
+          - not_null
+          - unique
+
+      - name: first_name
+        description: Customer first name.
+        tests:
+          - not_null
+
+      - name: last_name
+        description: Customer last name.
+        tests:
+          - not_null
+
+      - name: marital_status
+        description: Marital status (e.g. Single, Married).
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['Single', 'Married','Unknown']
+
+      - name: gender
+        description: Customer gender (M / F / n/a).
+        tests:
+          - accepted_values:
+              arguments:
+                values: ['Male', 'Female', 'M', 'F', 'n/a', 'Unknown']
+
+      - name: create_date
+        description: Date the customer record was created (cast to date).
+        tests:
+          - not_null
+
+  # ─────────────────────────────────────────────────────────────
+  # stg_raw_prd_info
+  # Source: RAW_PRD_INFO
+  # Transformations:
+  #   - prd_id        -> product_id
+  #   - prd_key       -> category_id  (substring 1–5, '-' -> '_')
+  #                  -> product_key  (substring 7 to end)
+  #   - prd_nm        -> product_name
+  #   - prd_line      -> product_line (case map: M=Mountain, R=Road,
+  #                                       S=Standard, T=Touring, else n/a)
+  #   - prd_cost      -> product_cost (ifnull -> 0)
+  #   - prd_start_dt  -> start_date    (cast to date)
+  #                  -> end_date      (lead(prd_start_dt) per prd_key - 1)
+  # ─────────────────────────────────────────────────────────────
+  - name: stg_raw_prd_info
+    description: >
+      Staging model for product information. One row per product, with
+      end_date derived as the day before the next prd_start_dt for the
+      same prd_key (open-ended range closure).
+    columns:
+      - name: product_id
+        description: Surrogate product id from the source system.
+        tests:
+          - not_null
+          - unique
+
+      - name: category_id
+        description: >
+          Category key derived from prd_key: substring chars 1–5 with '-'
+          replaced by '_'. Should be joinable to category_id in
+          stg_raw_px_cat_g1v2 (the category master).
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_raw_px_cat_g1v2')
+                field: category_id
+
+      - name: product_key
+        description: Natural product key (substring of prd_key from char 7).
+        tests:
+          - not_null
+
+      - name: product_name
+        description: Product name (renamed from prd_nm).
+        tests:
+          - not_null
+
+      - name: product_line
+        description: >
+          Product line mapped from prd_line:
+          M -> Mountain, R -> Road, S -> Standard, T -> Touring,
+          anything else -> 'n/a'.
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['Mountain', 'Road', 'Standard', 'Touring', 'n/a']
+
+      - name: product_cost
+        description: Product cost, with nulls coalesced to 0 via ifnull.
+        tests:
+          - not_null
+          - non_negative
+
+      - name: start_date
+        description: Date the product became available (cast to date).
+        tests:
+          - not_null
+
+      - name: end_date
+        description: >
+          Day before the next start_date for the same product_key, or
+          derived open-ended value. Used together with start_date for
+          validity-range checks.
+        tests:
+          - end_date_greater_than_start_date:
+              arguments:
+                column_name: start_date
+                date_column_name: end_date
+
+  # ─────────────────────────────────────────────────────────────
+  # stg_raw_sales_details
+  # Source: RAW_SALES_DETAILS
+  # Transformations:
+  #   - sls_ord_num -> order_number
+  #   - sls_prd_key -> product_key
+  #   - sls_cust_id -> customer_id
+  #   - sls_order_dt / sls_ship_dt / sls_due_dt -> order_date /
+  #         shipped_date / due_date
+  #       NULL when raw value <= 0 or string length < 8;
+  #       otherwise TRY_TO_DATE(varchar, 'YYYYMMDD')
+  #   - sls_sales   -> sales_amount
+  #       recompute as quantity * abs(price) when raw value is null,
+  #       <= 0, or inconsistent with quantity * abs(price)
+  #   - sls_quantity -> quantity
+  #   - sls_price    -> unit_price
+  #       fallback to sls_sales / nullif(quantity, 0) when null or <= 0
+  # ─────────────────────────────────────────────────────────────
+  - name: stg_raw_sales_details
+    description: >
+      Staging model for sales order line items. Bad YYYYMMDD date values
+      (zero, negative, or short) are nulled out; sales_amount is recomputed
+      from quantity * abs(price) when the raw sls_sales is null, non-positive,
+      or inconsistent with quantity * abs(price).
+    columns:
+      - name: order_number
+        description: Sales order number (renamed from sls_ord_num).
+        tests:
+          - not_null
+
+      - name: product_key
+        description: Product key (renamed from sls_prd_key).
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_raw_prd_info')
+                field: product_key
+
+      - name: customer_id
+        description: Customer id (renamed from sls_cust_id).
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_raw_cust_info')
+                field: customer_id
+
+      - name: order_date
+        description: >
+          Order date parsed from YYYYMMDD; nulled when the raw value is
+          zero, negative, or shorter than 8 characters.
+
+      - name: shipped_date
+        description: >
+          Ship date parsed from YYYYMMDD; nulled when the raw value is
+          zero, negative, or shorter than 8 characters.
+        tests:
+          - not_null
+
+      - name: due_date
+        description: >
+          Due date parsed from YYYYMMDD; nulled when the raw value is
+          zero, negative, or shorter than 8 characters.
+        tests:
+          - not_null
+
+      - name: sales_amount
+        description: >
+          Total sales amount. Recomputed as quantity * abs(price) when
+          the raw sls_sales is null, non-positive, or inconsistent with
+          quantity * abs(price).
+        tests:
+          - not_null
+          - non_negative
+
+      - name: quantity
+        description: Quantity sold on the line (renamed from sls_quantity).
+        tests:
+          - not_null
+          - non_negative
+
+      - name: unit_price
+        description: >
+          Unit price for the line. Falls back to sls_sales / nullif(quantity,0)
+          when sls_price is null or non-positive.
+        tests:
+          - not_null
+          - non_negative
+
+  # ─────────────────────────────────────────────────────────────
+  # stg_raw_cust_az12
+  # Source: RAW_CUST_AZ12
+  # Transformations:
+  #   - cid    -> customer_key
+  #               strip the 'NAS' prefix when cid LIKE 'NAS%';
+  #               otherwise pass through unchanged
+  #   - bdate  -> birth_date
+  #               NULL when bdate > getdate(); otherwise pass through
+  #   - gen    -> gender
+  #               case map: F / FEMALE -> Female, M / MALE -> Male,
+  #               anything else -> 'n/a'
+  # ─────────────────────────────────────────────────────────────
+  - name: stg_raw_cust_az12
+    description: >
+      Staging model for the AZ12 customer extract. Strips the legacy
+      'NAS' prefix from cid, nulls out future birth dates, and normalizes
+      gender to {Female, Male, n/a}.
+    columns:
+      - name: customer_key
+        description: >
+          Customer key derived from cid: the 'NAS' prefix is stripped
+          when present, otherwise cid is passed through unchanged.
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_raw_cust_info')
+                field: customer_key
+
+      - name: birth_date
+        description: >
+          Customer birth date; nulled when the raw bdate is later than
+          today so downstream models never see future birth dates.
+        tests:
+          - date_in_future
+
+      - name: gender
+        description: >
+          Gender mapped from gen:
+          F / FEMALE -> Female, M / MALE -> Male, anything else -> 'n/a'.
+        tests:
+          - not_null
+          - no_unwanted_spaces
+          - accepted_values:
+              arguments:
+                values: ['Female', 'Male', 'n/a']
+
+  # ─────────────────────────────────────────────────────────────
+  # stg_raw_loc_a101
+  # Source: RAW_LOC_A101
+  # Transformations:
+  #   - cid    -> customer_key  (replace '-' with '')
+  #   - cntry  -> country
+  #               DE -> Germany; US/USA -> United States;
+  #               '' or NULL -> 'n/a'; else trim(cntry)
+  # ─────────────────────────────────────────────────────────────
+  - name: stg_raw_loc_a101
+    description: >
+      Staging model for customer location. Strips hyphens from cid and
+      normalizes country to known values (DE -> Germany, US/USA ->
+      United States), with 'n/a' for missing values.
+    columns:
+      - name: customer_key
+        description: >
+          Customer key derived from cid with hyphens removed (so
+          'AB-12-CD' becomes 'AB12CD'). Should be joinable to
+          customer_key in stg_raw_cust_info.
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_raw_cust_info')
+                field: customer_key
+
+      - name: country
+        description: >
+          Country mapped from cntry:
+          DE -> Germany, US/USA -> United States,
+          empty/NULL -> 'n/a', otherwise trim(cntry).
+        tests:
+          - not_null
+          - no_unwanted_spaces

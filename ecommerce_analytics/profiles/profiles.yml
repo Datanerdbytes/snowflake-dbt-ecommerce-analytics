@@ -1,0 +1,13 @@
+ecommerce_analytics:
+  target: dev
+  outputs:
+    dev:
+      type: snowflake
+      threads: 16
+      account: UWPLFAC-GA25583
+      user: QUANTUMECHO
+      database: RAW_DB
+      warehouse: COMPUTE_WH
+      schema: ECOM_SOURCE
+      password: jinhe5=haqwiv=wopbAc
+      role: dbt_role
