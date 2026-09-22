@@ -72,8 +72,8 @@ Displays four key customer analytics visualizations:
 4. **Revenue by Gender** (Bar Chart) — Gender-based customer segmentation
 5. **Top 10 Customers by Name** (Detail Chart) — Named customer showcase sorted by lifetime sales
 
-![Customer Performance Dashboard](ecommerce_analytics/docs/.png)
-![Top 10 Customers by Lifetime Sales](ecommerce_analytics/docs/.png)
+![Customer Performance Dashboard](ecommerce_analytics/docs/customer_dashboard.png)
+![Top 10 Customers by Lifetime Sales](ecommerce_analytics/docs/top_10_customers.png)
 
 **Features:**
 - Dark theme styling for professional presentation
@@ -92,8 +92,8 @@ Displays four key product analytics visualizations:
 4. **Profit by Category** (Bar Chart) — Profitability analysis with margin insights
 5. **Top 10 Products by Revenue** (Detail Chart) — Individual product performance
 
-![Product Performance Dashboard](ecommerce_analytics/docs/.png)
-![Top 10 Products by Revenue](ecommerce_analytics/docs/.png)
+![Product Performance Dashboard](ecommerce_analytics/docs/product_dashboard.png)
+![Top 10 Products by Revenue](ecommerce_analytics/docs/top_10_products.png)
 
 **Features:**
 - Dark theme styling consistent with customer dashboard
