@@ -19,8 +19,6 @@ This project demonstrates a complete **modern data stack** implementation that i
 
 ### Data Pipeline (ELT)
 
-### Data Pipeline (ELT)
-
 ```mermaid
 flowchart TD
     A["Raw Data (Seeds/APIs)"]
