@@ -20,20 +20,23 @@ This project demonstrates a complete **modern data stack** implementation that i
 ### Data Pipeline (ELT)
 
 ```
-Raw Data (Seeds/APIs)
-    ↓
-Snowflake RAW_DB
-    ↓
-Staging Layer (Data Cleaning & Standardization)
-    ↓
-Dimensional Tables (dims_*)
-    ↓
-Fact Tables (fact_sales)
-    ↓
-Analytics Marts (mart_customer_sales, mart_product_sales)
-    ↓
-Dashboards & Insights
+flowchart TD
+    A["Raw Data (Seeds/APIs)"]
+    B["Snowflake RAW_DB"]
+    C["Staging Layer (Data Cleaning & Standardization)"]
+    D["Dimensional Tables (dims_*)"]
+    E["Fact Tables (fact_sales)"]
+    F["Analytics Marts (mart_customer_sales, mart_product_sales)"]
+    G["Dashboards & Insights"]
+
+    A --> B
+    B --> C
+    C --> D
+    D --> E
+    E --> F
+    F --> G
 ```
+
 
 ### Dimensional Model
 
